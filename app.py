@@ -1,6 +1,6 @@
 import streamlit as st
 from ats import calculate_ats_score
-from resume_parser import extract_text_from_file
+from resume_parser import extract_resume_text
 from skills import compare_skills, extract_skills
 
 # Set Page Config
@@ -27,8 +27,8 @@ with col2:
 
 if st.button("Analyze Match", type="primary"):
     if uploaded_file and job_desc:
-        # Extract Resume Text
-        resume_text = extract_text_from_file(uploaded_file)
+        # Extract Resume Text using extract_resume_text
+        resume_text = extract_resume_text(uploaded_file)
 
         # Extract Skills
         resume_skills = extract_skills(resume_text)
