@@ -1,90 +1,75 @@
 import streamlit as st
+from ats import calculate_ats_score
+from resume_parser import extract_text_from_file
+from skills import compare_skills, extract_skills
 
+# Set Page Config
 st.set_page_config(
-    page_title="AI Resume Screening System",
-    page_icon="🤖",
-    layout="wide"
+    page_title="AI Resume Screener", page_icon="📄", layout="wide"
 )
 
-# ---------- Header ----------
-st.title("🤖 AI Resume Screening System")
-st.markdown("### Upload your resume and compare it with a Job Description")
-
-st.divider()
-
-# ---------- Sidebar ----------
-st.sidebar.title("AI Resume Screener")
-st.sidebar.info("""
-This application will:
-- Analyze Resume
-- Calculate ATS Score
-- Extract Skills
-- Find Missing Skills
-- Give Recommendations
-""")
-
-# ---------- Upload Resume ----------
-resume = st.file_uploader(
-    "📄 Upload Resume",
-    type=["pdf", "docx"]
+st.title("📄 AI Resume Screener & ATS Matcher")
+st.write(
+    "Upload a candidate's resume and paste the job description to get a real-time match score."
 )
 
-# ---------- Job Description ----------
-job_description = st.text_area(
-    "📋 Paste Job Description",
-    height=250
-)
+col1, col2 = st.columns(2)
 
-# ---------- Button ----------
-if st.button("🚀 Analyze Resume", use_container_width=True):
+with col1:
+    st.subheader("1. Upload Resume")
+    uploaded_file = st.file_uploader(
+        "Choose PDF or DOCX file", type=["pdf", "docx"]
+    )
 
-    if resume is None:
-        st.error("Please upload your resume.")
-    elif job_description.strip() == "":
-        st.error("Please paste the job description.")
-    else:
+with col2:
+    st.subheader("2. Paste Job Description")
+    job_desc = st.text_area("Job Requirements", height=200)
 
-        st.success("Resume uploaded successfully!")
+if st.button("Analyze Match", type="primary"):
+    if uploaded_file and job_desc:
+        # Extract Resume Text
+        resume_text = extract_text_from_file(uploaded_file)
+
+        # Extract Skills
+        resume_skills = extract_skills(resume_text)
+        job_skills = extract_skills(job_desc)
+        matching, missing = compare_skills(resume_skills, job_skills)
+
+        # Calculate ATS Score
+        score = calculate_ats_score(resume_text, job_desc)
 
         st.divider()
 
-        col1, col2 = st.columns(2)
+        # Display Metrics
+        st.metric("ATS Match Score", f"{score}%")
+        st.progress(score / 100)
 
-        with col1:
-            st.metric("ATS Score", "87%")
+        c1, c2 = st.columns(2)
+        with c1:
+            st.subheader("✅ Matching Skills")
+            if matching:
+                st.write(", ".join(f"`{s}`" for s in matching))
+            else:
+                st.info("No explicit skill matches found.")
 
-            st.subheader("✅ Skills Found")
-
-            st.success("Python")
-            st.success("SQL")
-            st.success("Machine Learning")
-            st.success("Pandas")
-            st.success("NumPy")
-
-        with col2:
-
+        with c2:
             st.subheader("❌ Missing Skills")
+            if missing:
+                st.write(", ".join(f"`{s}`" for s in missing))
+            else:
+                st.success("No missing skills detected!")
 
-            st.error("Git")
-            st.error("GitHub")
-            st.error("Tableau")
-
-        st.divider()
-
-        st.subheader("📈 Recommendation")
-
-        st.info("""
-Your resume is a good match for this role.
-
-To improve your ATS score:
-
-• Add Git Projects
-
-• Mention Tableau
-
-• Include Machine Learning Projects
-
-• Add Internship Experience if available
-""")
-
-        st.success("Overall Result : GOOD MATCH ✅")
+        # Downloadable Summary Report
+        report = f"""--- AI RESUME SCREENER REPORT ---
+Match Score: {score}%
+Matching Skills: {', '.join(matching) if matching else 'None'}
+Missing Skills: {', '.join(missing) if missing else 'None'}
+"""
+        st.download_button(
+            label="📥 Download Match Report",
+            data=report,
+            file_name="ATS_Report.txt",
+            mime="text/plain",
+        )
+    else:
+        st.warning("Please upload a resume and provide a job description.")
