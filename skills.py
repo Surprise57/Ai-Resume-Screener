@@ -1,62 +1,80 @@
 import re
 
-# Common skills database (You can add more skills to this set!)
-COMMON_SKILLS = {
+# Comprehensive skill dictionary covering Technical, Tools, Frameworks, Concepts, and Soft Skills
+SKILL_DATABASE = [
+    # Programming Languages
     "python",
     "java",
-    "c++",
-    "c#",
+    "sql",
     "javascript",
-    "typescript",
     "html",
     "css",
-    "react",
-    "angular",
-    "vue",
-    "node.js",
-    "django",
-    "flask",
-    "fastapi",
-    "sql",
-    "postgresql",
-    "mysql",
-    "mongodb",
-    "aws",
-    "azure",
-    "gcp",
-    "docker",
-    "kubernetes",
-    "git",
-    "github",
+    "c++",
+    "r",
+    # AI / ML / Data Science Concepts
+    "regression",
+    "classification",
+    "clustering",
+    "data preprocessing",
+    "eda",
+    "exploratory data analysis",
+    "feature engineering",
+    "nlp",
+    "natural language processing",
+    "model deployment",
     "machine learning",
     "deep learning",
-    "data analysis",
-    "pandas",
+    "computer vision",
+    "sentiment analysis",
+    "statistical analysis",
+    "data visualization",
+    "data analytics",
+    "forensic technology",
+    # GenAI & Advanced Concepts
+    "genai",
+    "generative ai",
+    "llms",
+    "rag",
+    "ai agents",
+    # Libraries & Frameworks
     "numpy",
+    "pandas",
     "scikit-learn",
     "tensorflow",
-    "pytorch",
-    "nlp",
-    "excel",
-    "power bi",
-    "tableau",
-    "rest api",
-    "graphql",
-    "agile",
-    "scrum",
-}
+    "keras",
+    "opencv",
+    "hugging face",
+    "nltk",
+    "xgboost",
+    "streamlit",
+    # Tools & Platforms
+    "git",
+    "github",
+    "jupyter notebook",
+    "vs code",
+    "google colab",
+    "docker",
+    "netlify",
+    # Soft Skills & Professional Attributes
+    "problem solving",
+    "time management",
+    "team leadership",
+    "communication",
+    "collaboration",
+    "critical thinking",
+]
 
 
 def extract_skills(text):
-    """Extracts known skills from raw text using regex pattern matching."""
+    """Extracts all matched skills (technical, tools, concepts, soft skills) from text."""
     if not text:
         return set()
 
     text_lower = text.lower()
     found_skills = set()
 
-    for skill in COMMON_SKILLS:
-        # Use regex to match whole words so "c" doesn't match inside "css"
+    for skill in SKILL_DATABASE:
+        # Use regex boundary matching to find exact skill words
         pattern = r"\b" + re.escape(skill) + r"\b"
         if re.search(pattern, text_lower):
             found_skills.add(skill.title())
@@ -65,8 +83,8 @@ def extract_skills(text):
 
 
 def compare_skills(resume_skills, job_skills):
-    """Compares resume skills against job requirements."""
-    matching_skills = resume_skills.intersection(job_skills)
-    missing_skills = job_skills - resume_skills
+    """Compares resume skills against job description requirements."""
+    matching = resume_skills.intersection(job_skills)
+    missing = job_skills.difference(resume_skills)
 
-    return matching_skills, missing_skills
+    return matching, missing
